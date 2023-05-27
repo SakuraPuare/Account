@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "api"
+version = "0.1.0"
+description = ""
+authors = ["Steven Moder <java20131114@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+pydantic = "^1.10.8"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0.15" }
+fastapi = "^0.95.2"
+uvicorn = "^0.22.0"
+pyyaml = "^6.0"
+pymysql = "^1.0.3"
+mysqlclient = "^2.1.1"
+aiomysql = "^0.1.1"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
