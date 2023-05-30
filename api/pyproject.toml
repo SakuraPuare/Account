@@ -13,8 +13,10 @@ fastapi = "^0.95.2"
 uvicorn = "^0.22.0"
 pyyaml = "^6.0"
 pymysql = "^1.0.3"
-mysqlclient = "^2.1.1"
-aiomysql = "^0.1.1"
+pyjwt = "^2.7.0"
+passlib = "^1.7.4"
+uuid = "^1.30"
+autopep8 = "^2.0.2"
 
 
 [build-system]
