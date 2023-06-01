@@ -1,6 +1,7 @@
 # coding=utf-8
 import datetime
 import os
+import random
 from hashlib import md5
 
 import jwt
@@ -21,10 +22,6 @@ def generate_hash_password(password: str) -> str:
 
 
 def verify_hash_password(password: str, hash_password: str) -> bool:
-    """
-
-    :rtype: object
-    """
     # sha256 verify
     try:
         return pbkdf2_sha256.verify(password + ENCRYPT_SALT, hash_password)
@@ -44,3 +41,7 @@ def generate_user_token(user: models.User) -> str:
 
 def generate_md5(message: str) -> str:
     return md5(message.encode('utf-8')).hexdigest()
+
+
+def generate_captcha_code(size: int = 8) -> str:
+    return ''.join([str(random.randint(0, 9)) for _ in range(size)])

@@ -6,11 +6,11 @@ from sqlalchemy.orm import Session
 
 from database import models, schemas
 from database.crud.user import get_user_by_uuid, delete_user_token, get_user_token_by_id, create_user_token, \
-    update_user_password, update_user_email, update_user_info
+    update_user_password, update_user_email, update_user_info, create_email_captcha, update_email_captcha
 from database.func import get_db
 from router.oauth import get_current_user, get_current_token
 from utils.encryption import verify_hash_password
-from utils.status_code import Unauthorized, NotFound, Forbidden, UnprocessableEntity, NoContent
+from utils.status_code import Unauthorized, NotFound, Forbidden, UnprocessableEntity, NoContent, OK, Created
 
 user_router = APIRouter(
     prefix="/user",
@@ -148,3 +148,33 @@ async def delete_self_token(db: Session = Depends(get_db), user: models.User = D
     delete_user_token(db, token)
 
     raise NoContent
+
+
+@user_router.post("/activate", tags=["users"])
+async def create_email_activation(db: Session = Depends(get_db), user: models.User = Depends(get_current_user)) -> None:
+    if not user:
+        raise Unauthorized
+
+    if user.email_verified_at:
+        raise OK
+
+    create_email_captcha(db, user)
+
+    raise Created
+
+
+@user_router.put("/activate", tags=["users"])
+async def update_email_activation(token: schemas.EmailCaptchaUpdate, db: Session = Depends(get_db),
+                                  user: models.User = Depends(get_current_user)) -> None:
+    if not user:
+        raise Unauthorized
+
+    if user.email_verified_at:
+        raise OK
+
+    resp = update_email_captcha(db, user, token)
+
+    if resp:
+        raise OK
+    else:
+        raise Forbidden

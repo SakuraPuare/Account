@@ -6,21 +6,19 @@ from pydantic import BaseModel
 from database import schemas
 
 
-class UserTokenBase(BaseModel):
-    id: int
-
+class EmailCaptchaBase(BaseModel):
     class Config:
         orm_mode = True
 
 
-class UserToken(UserTokenBase):
+class EmailCaptchaUpdate(EmailCaptchaBase):
+    captcha: str = ''
+
+
+class EmailCaptcha(EmailCaptchaBase):
     id: int
     user: schemas.User
-    token: str
+    email: str
+    captcha: str
     created_at: datetime.datetime
     expired_at: datetime.datetime
-    lifetime: int
-    is_active: bool
-
-    class Config:
-        orm_mode = True

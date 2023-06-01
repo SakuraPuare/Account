@@ -25,6 +25,7 @@ class User(Base):
     encrypted_password = Column(String(511))
 
     tokens = relationship('UserToken', backref='user')
+    captcha = relationship('EmailCaptcha', backref='user')
 
     def __repr__(self):
         return f'<User {self.id} {self.username}>'
@@ -46,3 +47,16 @@ class UserToken(Base):
     @property
     def is_expired(self) -> bool:
         return datetime.datetime.now() > self.expired_at and self.is_active
+
+
+class EmailCaptcha(Base):
+    __tablename__ = 'email_captcha'
+    id = Column(BigInteger, primary_key=True, index=True, autoincrement=True)
+    user_id = Column(BigInteger, ForeignKey('users.id'))
+    email = Column(String(255), unique=True, index=True)
+    captcha = Column(String(255), index=True)
+    created_at = Column(DateTime, default=datetime.datetime.now())
+    expired_at = Column(DateTime, default=datetime.datetime.now() + datetime.timedelta(minutes=5))
+
+    def __repr__(self):
+        return f'<Captcha {self.id} {self.username}>'

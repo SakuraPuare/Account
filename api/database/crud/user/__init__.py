@@ -4,8 +4,7 @@ import datetime
 from sqlalchemy.orm import Session
 
 from database import models, schemas
-from utils.encryption import generate_user_token, generate_hash_password, generate_md5
-from utils.status_code import StatusCode
+from utils.encryption import generate_user_token, generate_hash_password, generate_md5, generate_captcha_code
 
 
 def create_user(db: Session, user: models.User) -> models.User:
@@ -54,16 +53,22 @@ def update_user_info(db: Session, update: schemas.UserUpdate, current: models.Us
     return update_user(db, current)
 
 
-def update_user_password(db: Session, update: schemas.UserUpdate, current: models.User) -> models.User | StatusCode:
+def update_user_password(db: Session, update: schemas.UserUpdate, current: models.User) -> models.User:
     current.encrypted_password = generate_hash_password(update.new_password)
     return update_user(db, current)
 
 
-def update_user_email(db: Session, update: schemas.UserUpdate, current: models.User) -> models.User | StatusCode:
+def update_user_email(db: Session, update: schemas.UserUpdate, current: models.User) -> models.User:
     # update email
     current.email = update.email
     current.email_md5 = generate_md5(update.email)
+    current.email_verified_at = None
     return update_user(db, current)
+
+
+def update_user_email_captcha(db: Session, user: models.User) -> models.User:
+    user.email_verified_at = datetime.datetime.now()
+    return update_user(db, user)
 
 
 def create_user_token(db: Session, user: models.User, lifetime: int = 86400) -> models.UserToken:
@@ -123,3 +128,39 @@ def delete_user_token_by_token(db: Session, token: str) -> None:
         except Exception as e:
             db.rollback()
             raise e
+
+
+def create_email_captcha(db: Session, user: models.User) -> None:
+    code = generate_captcha_code()
+
+    captcha = models.EmailCaptcha(user_id=user.id, email=user.email, captcha=code)
+
+    try:
+        db.add(captcha)
+        db.commit()
+        db.refresh(captcha)
+    except Exception as e:
+        db.rollback()
+        raise e
+
+
+def delete_email_captcha(db: Session, captcha: models.EmailCaptcha) -> None:
+    try:
+        db.delete(captcha)
+        db.commit()
+    except Exception as e:
+        db.rollback()
+        raise e
+
+
+def update_email_captcha(db: Session, user: models.User, captcha: schemas.EmailCaptchaUpdate) -> bool:
+    for code in user.captcha:
+        code: models.EmailCaptcha
+        if datetime.datetime.now() > code.expired_at:
+            delete_email_captcha(db, code)
+        else:
+            if code.captcha == captcha.captcha:
+                delete_email_captcha(db, code)
+                update_user_email_captcha(db, user)
+                return True
+    return False
