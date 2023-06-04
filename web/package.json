@@ -11,6 +11,7 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "animate.css": "^4.1.1",
     "axios": "^1.4.0",
     "vue": "^3.3.2",
     "vue-material-design-icons": "^5.2.0",
