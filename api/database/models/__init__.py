@@ -2,7 +2,7 @@
 import datetime
 import uuid
 
-from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, BigInteger
+from sqlalchemy import Column, String, DateTime, Boolean, ForeignKey, BigInteger, Text
 from sqlalchemy.orm import relationship
 
 from database import Base
@@ -16,7 +16,7 @@ class User(Base):
     email = Column(String(255), unique=True, index=True)
     email_md5 = Column(String(255), unique=True, index=True)
     email_verified_at = Column(DateTime, nullable=True)
-    slogan = Column(String(511), default='')
+    slogan = Column(Text, default='')
     is_active = Column(Boolean, default=True)
     is_superuser = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.datetime.now())

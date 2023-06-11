@@ -38,7 +38,7 @@ def update_user_info(db: Session, updated_user: schemas.UserUpdate, current_user
         current_user.slogan = updated_user.slogan
     if updated_user.username:
         current_user.username = updated_user.username
-    return updated_user(db, current_user)
+    return update_user(db, current_user)
 
 
 def update_user_password(db: Session, updated_user: schemas.UserUpdate, current_user: models.User) -> models.User:
@@ -46,10 +46,10 @@ def update_user_password(db: Session, updated_user: schemas.UserUpdate, current_
     return update_user(db, current_user)
 
 
-def update_user_email(db: Session, update_user: schemas.UserUpdate, current_user: models.User) -> models.User:
+def update_user_email(db: Session, updated_user: schemas.UserUpdate, current_user: models.User) -> models.User:
     # update email
-    current_user.email = update_user.email
-    current_user.email_md5 = generate_md5(update_user.email)
+    current_user.email = updated_user.email
+    current_user.email_md5 = generate_md5(updated_user.email)
     current_user.email_verified_at = None
     return update_user(db, current_user)
 
